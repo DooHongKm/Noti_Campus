@@ -1,26 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import { db } from './firebase';
+import { doc, getDoc } from "firebase/firestore";
 
-function App() {
+interface items {
+  name: string
+}
+
+const App: React.FC = () => {
+
+  const [data, setData] = useState<items>({name: 'a_items'});
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const docRef = doc(db, "items", "a");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setData(docSnap.data() as items);
+          console.log("DB connecting success")
+        } else {
+          console.log("No DB");
+        }
+      } catch (error) {
+        console.error("DB connecting fail", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <p>{data.name}</p>
     </div>
   );
 }
 
-export default App;
+export default App
